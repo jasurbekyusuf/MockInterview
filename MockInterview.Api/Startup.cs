@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using MockInterview.Api.Brokers.Storages;
 
 namespace MockInterview.Api
 {
@@ -28,6 +29,7 @@ namespace MockInterview.Api
                     name: "v1",
                     info: new OpenApiInfo { Title = "MockInterview.Api", Version = "v1" });
             });
+            services.AddDbContext<StorageBroker>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
