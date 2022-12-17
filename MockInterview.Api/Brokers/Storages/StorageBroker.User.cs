@@ -1,6 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿//==================================================
+// Copyright (c) Coalition of Good-Hearted Engineers
+// Free to use to bring order in your workplace
+//==================================================
+
+using Microsoft.EntityFrameworkCore;
 using MockInterview.Api.Models.Users;
-using System.Net.Sockets;
 
 namespace MockInterview.Api.Brokers.Storages
 {
