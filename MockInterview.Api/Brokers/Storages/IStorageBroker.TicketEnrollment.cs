@@ -1,5 +1,6 @@
 ﻿using MockInterview.Api.Models.TicketEnrollments;
 using MockInterview.Api.Models.Tickets;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,5 +12,6 @@ namespace MockInterview.Api.Brokers.Storages
         IQueryable<TicketEnrollment> SelectAllTicketEnrollments();
         ValueTask<TicketEnrollment> DeleteTicketEnrollmentAsync(TicketEnrollment ticketEnrollment);
         ValueTask<TicketEnrollment> UpdateTicketEnrollmentAsync(TicketEnrollment ticketEnrollment);
+        ValueTask<TicketEnrollment> SelectTicketEnrollmentByIdAsync(Guid id);
     }
 }
