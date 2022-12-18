@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using MockInterview.Api.Brokers.Loggings;
 using MockInterview.Api.Brokers.Storages;
 using MockInterview.Api.Models.TicketEnrollments;
+using MockInterview.Api.Services.Foundations.TicketEnrollments;
 
 namespace MockInterview.Api.Services.Foundations
 {

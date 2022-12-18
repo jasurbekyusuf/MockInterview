@@ -7,9 +7,15 @@ using System.Threading.Tasks;
 using System;
 using Microsoft.AspNetCore.Mvc;
 using RESTFulSense.Controllers;
-using MockInterview.Api.Services.Foundations;
 using MockInterview.Api.Models.TicketEnrollments;
 using MockInterview.Api.Models.TicketEnrollments.Exceptions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using MockInterview.Api.Models.Tickets;
+using MockInterview.Api.Services.Foundations.Tickets;
+using MockInterview.Api.Services.Users;
+using MockInterview.Api.Services.Foundations.TicketEnrollments;
+using Microsoft.AspNetCore.Authentication;
 
 namespace MockInterview.Api.Controllers
 {
@@ -17,17 +23,42 @@ namespace MockInterview.Api.Controllers
     [Route("api/[controller]")]
     public class TicketEnrollmentController : RESTFulController
     {
+        private readonly IConfiguration configuration;
         private readonly ITicketEnrollmentService ticketEnrollmentService;
+        private readonly IUserService userService;
 
-        public TicketEnrollmentController(ITicketEnrollmentService ticketEnrollmentService) =>
+        public TicketEnrollmentController(
+            ITicketEnrollmentService ticketEnrollmentService,
+            IUserService userService)
+        {
             this.ticketEnrollmentService = ticketEnrollmentService;
+            this.userService = userService;
+        }
+
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly RoleManager<IdentityRole> roleManager;
 
         [HttpPost]
-        public async ValueTask<ActionResult<TicketEnrollment>> PostTicketAsync(TicketEnrollment ticketEnrollment)
+        [Route("AddTicketEnrollment")]
+        public async ValueTask<ActionResult<TicketEnrollment>> PostTicketEnrollmentAsync([FromBody]TicketEnrollment ticketEnrollment, string token)
         {
             try
             {
-                return await this.ticketEnrollmentService.AddTicketEnrollmentAsync(ticketEnrollment);
+
+                var user = HttpContext.User;
+
+                var validation = this.userService.ValidateToken(token).Result.Status;
+                if (validation == "Valid")
+                {
+                    //await HttpContext.SignInAsync(validation, this.userService.GetClaim(token));
+                    
+                    var res = await this.ticketEnrollmentService.AddTicketEnrollmentAsync(ticketEnrollment);
+                    return Ok(res);
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
             catch (TicketEnrollmentValidationException ticketEnrollmentValidationException)
             {

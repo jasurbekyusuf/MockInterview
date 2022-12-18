@@ -124,7 +124,7 @@ namespace MockInterview.Api.Services.Users
             return token;
         }
 
-        public async Task<List<Claim>> GetClaims(string token)
+        public async Task<List<Claim>> GetClaimsAsync(string token)
         {
             if (token == null)
                 return null;

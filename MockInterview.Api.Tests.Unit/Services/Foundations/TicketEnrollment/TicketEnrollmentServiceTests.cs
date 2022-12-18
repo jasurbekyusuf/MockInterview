@@ -12,6 +12,7 @@ using MockInterview.Api.Brokers.Loggings;
 using MockInterview.Api.Brokers.Storages;
 using MockInterview.Api.Models.Tickets;
 using MockInterview.Api.Services.Foundations;
+using MockInterview.Api.Services.Foundations.TicketEnrollments;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
