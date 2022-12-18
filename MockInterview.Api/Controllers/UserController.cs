@@ -36,7 +36,7 @@ namespace MockInterview.Api.Controllers
             this.userService = userService;
         }
         [HttpPost]
-        [Route("login")]
+        [Route("Login")]
         public async Task<IActionResult> Login([FromBody] LoginUser model)
         {
             var user = await userManager.FindByNameAsync(model.Username);
@@ -67,7 +67,7 @@ namespace MockInterview.Api.Controllers
         }
 
         [HttpPost]
-        [Route("validate")]
+        [Route("Validate")]
         public async Task<IActionResult> Validate(string token)
         {
             var res = await userService.ValidateToken(token);
@@ -77,7 +77,7 @@ namespace MockInterview.Api.Controllers
             return BadRequest();
         }
         [HttpPost]
-        [Route("register")]
+        [Route("RegisterUser")]
         public async Task<IActionResult> Register([FromBody] RegisterUser model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
@@ -89,7 +89,7 @@ namespace MockInterview.Api.Controllers
         }
 
         [HttpPost]
-        [Route("register-admin")]
+        [Route("RegisterAdmin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterUser model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
@@ -101,7 +101,7 @@ namespace MockInterview.Api.Controllers
 
 
         [HttpPost]
-        [Route("add-interviewer")]
+        [Route("AddInterviewer")]
         public async Task<IActionResult> AddInterviewer([FromBody] RegisterUser model, string token)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
