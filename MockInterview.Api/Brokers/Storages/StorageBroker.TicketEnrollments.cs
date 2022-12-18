@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MockInterview.Api.Models.TicketEnrollments;
 using MockInterview.Api.Models.Tickets;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,5 +22,8 @@ namespace MockInterview.Api.Brokers.Storages
 
         public async ValueTask<TicketEnrollment> UpdateTicketEnrollmentAsync(TicketEnrollment ticketEnrollment) =>
             await UpdateAsync(ticketEnrollment);
+        
+        public async ValueTask<TicketEnrollment> SelectTicketEnrollmentByIdAsync(Guid id) =>
+            await SelectAsync<TicketEnrollment>(id);
     }
 }
