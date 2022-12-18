@@ -15,5 +15,8 @@ namespace MockInterview.Api.Brokers.Storages
 
         public IQueryable<TicketEnrollment> SelectAllTicketEnrollments() =>
             SelectAll<TicketEnrollment>();
+
+        public async ValueTask<TicketEnrollment> DeleteTicketEnrollmentAsync(TicketEnrollment ticketEnrollment) =>
+           await DeleteAsync(ticketEnrollment);
     }
 }
