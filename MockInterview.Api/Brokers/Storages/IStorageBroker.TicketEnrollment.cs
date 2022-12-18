@@ -1,10 +1,13 @@
-﻿using MockInterview.Api.Models.Tickets;
+﻿using MockInterview.Api.Models.TicketEnrollments;
+using MockInterview.Api.Models.Tickets;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MockInterview.Api.Brokers.Storages
 {
     public partial interface IStorageBroker
     {
-        ValueTask<Ticket> InsertTicketEnrollmentAsync(Ticket ticket);
+        ValueTask<TicketEnrollment> InsertTicketEnrollmentAsync(TicketEnrollment ticketEnrollment);
+        IQueryable<TicketEnrollment> SelectAllTicketEnrollments();
     }
 }
