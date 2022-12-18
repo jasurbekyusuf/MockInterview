@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using MockInterview.Api.Models.Tickets;
 using MockInterview.Api.Models.Users;
 using System;
 using System.Linq;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace MockInterview.Api.Brokers.Storages
 {
-    public partial class StorageBroker : IdentityDbContext<IdentityUser>
+    public partial class StorageBroker : IdentityDbContext<IdentityUser>, IStorageBroker
     {
         private readonly IConfiguration configuration;
 
@@ -75,6 +76,7 @@ namespace MockInterview.Api.Brokers.Storages
         {
             base.OnModelCreating(builder);
         }
+
         public override void Dispose() { }
     }
 }

@@ -15,7 +15,7 @@ namespace MockInterview.Api.Brokers.Storages
     {
         DbSet<Ticket> Tickets { get; set; }
 
-        public async ValueTask<Ticket> InsertPostAsync(Ticket ticket) =>
+        public async ValueTask<Ticket> InsertTicketAsync(Ticket ticket) =>
             await InsertAsync(ticket);
 
         public IQueryable<Ticket> SelectAllTickets() =>

@@ -3,6 +3,7 @@
 // Free to use to bring order in your workplace
 //==================================================
 
+using FluentAssertions.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -17,6 +18,9 @@ using Microsoft.OpenApi.Models;
 using MockInterview.Api.Brokers.Loggings;
 using MockInterview.Api.Brokers.Storages;
 using MockInterview.Api.Models.Users;
+using MockInterview.Api.Services.Foundations;
+using MockInterview.Api.Services.Foundations.TicketEnrollments;
+using MockInterview.Api.Services.Foundations.Tickets;
 using MockInterview.Api.Services.Users;
 using System.Text;
 
@@ -45,6 +49,7 @@ namespace MockInterview.Api
             services.TryAddSingleton<ISystemClock, SystemClock>();
             //services.TryAddSingleton<IUserService, UserService>();
             RegisterBrokers(services);
+            RegisterServices(services);
             // Adding Authentication
            services.AddAuthentication(options =>
             {
@@ -90,10 +95,17 @@ namespace MockInterview.Api
                 endpoints.MapControllers());
         }
 
+        private static void RegisterServices(IServiceCollection services)
+        {
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ITicketService, TicketService>();
+            services.AddTransient<ITicketEnrollmentService, TicketEnrollmentService>();
+        }
+
         private static void RegisterBrokers(IServiceCollection services)
         {
             services.AddTransient<ILoggingBroker, LoggingBroker>();
-            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IStorageBroker, StorageBroker>();
         }
     }
 }

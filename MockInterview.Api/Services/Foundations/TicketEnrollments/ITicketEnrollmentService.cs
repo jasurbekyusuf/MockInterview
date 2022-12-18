@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MockInterview.Api.Models.TicketEnrollments;
 
-namespace MockInterview.Api.Services.Foundations
+namespace MockInterview.Api.Services.Foundations.TicketEnrollments
 {
     public interface ITicketEnrollmentService
     {

@@ -18,6 +18,7 @@ namespace MockInterview.Api.Services.Users
         Task IsExistAdminRole();
         Task IsExistUserRole();
         Task IsExistInterviewerRole();
+        Task<List<Claim>> GetClaimsAsync(string token);
 
     }
 }
