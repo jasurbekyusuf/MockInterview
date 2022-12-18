@@ -4,6 +4,7 @@
 //==================================================
 
 using MockInterview.Api.Models.Tickets;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,6 +14,7 @@ namespace MockInterview.Api.Brokers.Storages
     {
         ValueTask<Ticket> InsertTicketAsync(Ticket ticket);
         IQueryable<Ticket> SelectAllTickets();
+        ValueTask<Ticket> SelectTicketByIdAsync(Guid id);
         ValueTask<Ticket> UpdateTicketAsync(Ticket student);
         ValueTask<Ticket> DeleteTicketAsync(Ticket ticket);
     }
