@@ -18,5 +18,8 @@ namespace MockInterview.Api.Brokers.Storages
 
         public async ValueTask<TicketEnrollment> DeleteTicketEnrollmentAsync(TicketEnrollment ticketEnrollment) =>
            await DeleteAsync(ticketEnrollment);
+
+        public async ValueTask<TicketEnrollment> UpdateTicketEnrollmentAsync(TicketEnrollment ticketEnrollment) =>
+            await UpdateAsync(ticketEnrollment);
     }
 }

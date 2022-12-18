@@ -10,5 +10,6 @@ namespace MockInterview.Api.Brokers.Storages
         ValueTask<TicketEnrollment> InsertTicketEnrollmentAsync(TicketEnrollment ticketEnrollment);
         IQueryable<TicketEnrollment> SelectAllTicketEnrollments();
         ValueTask<TicketEnrollment> DeleteTicketEnrollmentAsync(TicketEnrollment ticketEnrollment);
+        ValueTask<TicketEnrollment> UpdateTicketEnrollmentAsync(TicketEnrollment ticketEnrollment);
     }
 }
