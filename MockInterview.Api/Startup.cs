@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using MockInterview.Api.Brokers.Loggings;
 using MockInterview.Api.Brokers.Storages;
 
 namespace MockInterview.Api
@@ -30,6 +31,7 @@ namespace MockInterview.Api
                     info: new OpenApiInfo { Title = "MockInterview.Api", Version = "v1" });
             });
             services.AddDbContext<StorageBroker>();
+            RegisterBrokers(services);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -49,6 +51,11 @@ namespace MockInterview.Api
 
             app.UseEndpoints(endpoints =>
                 endpoints.MapControllers());
+        }
+
+        private static void RegisterBrokers(IServiceCollection services)
+        {
+            services.AddTransient<ILoggingBroker, LoggingBroker>();
         }
     }
 }
