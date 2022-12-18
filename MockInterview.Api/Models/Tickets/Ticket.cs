@@ -11,7 +11,7 @@ namespace MockInterview.Api.Models.Tickets
     {
         public Guid Id { get; set; }
 
-        public Guid InterviewerId { get; set; }
+        public string InterviewerId { get; set; }
 
         public DateTime CreatedTime { get; set; }
 

@@ -13,6 +13,8 @@ using MockInterview.Api.Models.Tickets.Exceptions;
 using MockInterview.Api.Services.Users;
 using System.Linq;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Identity;
+using MockInterview.Api.Models.Users;
 
 namespace MockInterview.Api.Controllers
 {
@@ -22,27 +24,48 @@ namespace MockInterview.Api.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly ITicketService ticketService;
-        private readonly UserService userService;
+        private readonly IUserService userService;
+        private readonly UserManager<IdentityUser> userManager;
 
         public TicketController(
             ITicketService ticketService,
-            UserService userService)
+            IUserService userService,
+            UserManager<IdentityUser> userManager)
         {
             this.ticketService = ticketService;
             this.userService = userService;
+            this.userManager = userManager;
         }
 
         [HttpPost]
         [Route("AddTicket")]
-        public async Task<IActionResult> AddTicket([FromBody] Ticket ticket, string token)
+        public async Task<IActionResult> AddTicket([FromBody] CreateTicket ticket, string token)
         {
-            var user = HttpContext.User;
-
-            var validation = this.userService.ValidateToken(token).Result.Status;
-            if (validation == "valid" && !user.IsInRole("User"))
+            var validation = this.userService.ValidateToken(token).Result;
+            if (validation.Status == "Valid")
             {
-                Ticket addedTicket = await this.ticketService.AddTicketAsync(ticket);
-                return Ok(addedTicket);
+                var user = userManager.FindByNameAsync(validation.Message);
+                var role =  userManager.GetRolesAsync(user.Result);
+                if(role.ToString()==UserRoles.Admin || role.ToString() == UserRoles.Interviewer)
+                {
+                    Ticket addedTicket = new Ticket
+                    {
+                        Id = new Guid(),
+                        InterviewerId = user.Result.Id,
+                        CreatedTime = DateTime.UtcNow,
+                        StartTime = ticket.StartTime,
+                        EndTime = ticket.EndTime,
+                        Status = TicketStatus.Open,
+                        Speciality = ticket.Speciality
+                    };
+
+                    await this.ticketService.AddTicketAsync(addedTicket);
+                    return Ok(addedTicket);
+                }
+                else
+                {
+                    return Unauthorized();
+                }
             }
             else
             {
@@ -59,7 +82,7 @@ namespace MockInterview.Api.Controllers
 
         }
 
-        [HttpGet("{postId}")]
+        [HttpGet("{ticketId}")]
         public async ValueTask<ActionResult<Ticket>> GetTicketByIdAsync(Guid ticketId)
         {
             Ticket ticket = await this.ticketService.RetrieveTicketByIdAsync(ticketId);
@@ -67,17 +90,51 @@ namespace MockInterview.Api.Controllers
         }
 
         [HttpPut]
+        [Route("Update")]
         public async ValueTask<ActionResult<Ticket>> PutTicketAsync(Ticket ticket)
         {
             Ticket modifiedTicket = await this.ticketService.ModifyTicketAsync(ticket);
             return Ok(modifiedTicket);
         }
 
-        [HttpDelete("{postId}")]
+        [HttpDelete("{ticketId}")]
         public async ValueTask<ActionResult<Ticket>> DeleteTicketByIdAsync(Guid ticketId)
         {
             Ticket deletedTicket = await this.ticketService.RemovePostByIdAsync(ticketId);
             return Ok(deletedTicket);
+        }
+
+        [HttpGet]
+        [Route("GetTicketsByOrder")]
+        public ActionResult<IQueryable<Ticket>> GetTicketsByOrder(string sortOrder)
+        {
+            sortOrder = sortOrder == "ascending" ? "descending" : "ascending";
+            IQueryable<Ticket> retrievedTickets = this.ticketService.RetrieveAllPosts();
+
+            if (sortOrder == "ascending")
+                retrievedTickets = retrievedTickets.OrderBy(ticket => ticket.StartTime);
+            else
+                retrievedTickets = retrievedTickets.OrderByDescending(ticket => ticket.StartTime);
+
+            return Ok(retrievedTickets);
+        }
+
+        [HttpGet]
+        [Route("GetTicketsByDate")]
+        public ActionResult<IQueryable<Ticket>> GetTicketsByDate(DateTime dateTime)
+        {
+            IQueryable<Ticket> retrievedTickets = this.ticketService.RetrieveAllPosts();
+            try
+            {
+                retrievedTickets = retrievedTickets.Where(ticket => ticket.StartTime == dateTime);
+
+                return Ok(retrievedTickets);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+
         }
     }
 }
