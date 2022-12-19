@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using MockInterview.Api.Models.Tickets;
 using MockInterview.Api.Services.Foundations.Tickets;
 using MockInterview.Api.Models.Tickets.Exceptions;
+using MockInterview.Api.Services.Users;
+using System.Linq;
+using Microsoft.Extensions.Hosting;
 
 namespace MockInterview.Api.Controllers
 {
@@ -17,60 +20,64 @@ namespace MockInterview.Api.Controllers
     [ApiController]
     public class TicketController : ControllerBase
     {
-        //private readonly IConfiguration configuration;
-        //private readonly ITicketService ticketService;
+        private readonly IConfiguration configuration;
+        private readonly ITicketService ticketService;
+        private readonly UserService userService;
 
-        //public TicketController(ITicketService ticketService) =>
-        //    this.ticketService = ticketService;
+        public TicketController(
+            ITicketService ticketService,
+            UserService userService)
+        {
+            this.ticketService = ticketService;
+            this.userService = userService;
+        }
 
-        //private bool TokenGeneration()
-        //{
-        //    return true;
-        //}
+        [HttpPost]
+        [Route("AddTicket")]
+        public async Task<IActionResult> AddTicket([FromBody] Ticket ticket, string token)
+        {
+            var user = HttpContext.User;
 
-        //[HttpPost]
-        //public async ValueTask<ActionResult<Ticket>> PostTicketAsync(Ticket ticket)
-        //{
-        //    try
-        //    {
-        //        Ticket addedTicket =
-        //            await this.ticketService.AddTicketAsync(ticket);
+            var validation = this.userService.ValidateToken(token).Result.Status;
+            if (validation == "valid" && !user.IsInRole("User"))
+            {
+                Ticket addedTicket = await this.ticketService.AddTicketAsync(ticket);
+                return Ok(addedTicket);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
 
-        //        return Created(addedTicket);
-        //    }
-        //    catch (TicketValidationException postValidationException)
-        //    {
-        //        return BadRequest(postValidationException.InnerException);
-        //    }
-        //    catch (TicketDependencyValidationException postDependencyValidationException)
-        //       when (postDependencyValidationException.InnerException is AlreadyExistsTicketException)
-        //    {
-        //        return Conflict(postDependencyValidationException.InnerException);
-        //    }
-        //    catch (TicketDependencyException postDependencyException)
-        //    {
-        //        return InternalServerError(postDependencyException);
-        //    }
-        //    catch (TicketServiceException postServiceException)
-        //    {
-        //        return InternalServerError(postServiceException);
-        //    }
-        //}
+        [HttpGet]
+        [Route("GetAllTickets")]
+        public ActionResult<IQueryable<Ticket>> GetAllTikcets()
+        {
+            IQueryable<Ticket> retrievedTickets = this.ticketService.RetrieveAllPosts();
+            return Ok(retrievedTickets);
 
+        }
 
-        //private JwtSecurityToken GetToken(List<Claim> authClaims)
-        //{
-        //    var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
+        [HttpGet("{postId}")]
+        public async ValueTask<ActionResult<Ticket>> GetTicketByIdAsync(Guid ticketId)
+        {
+            Ticket ticket = await this.ticketService.RetrieveTicketByIdAsync(ticketId);
+            return Ok(ticket);
+        }
 
-        //    var token = new JwtSecurityToken(
-        //        issuer: configuration["JWT:ValidIssuer"],
-        //        audience: configuration["JWT:ValidAudience"],
-        //        expires: DateTime.Now.AddHours(3),
-        //        claims: authClaims,
-        //        signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-        //        );
+        [HttpPut]
+        public async ValueTask<ActionResult<Ticket>> PutTicketAsync(Ticket ticket)
+        {
+            Ticket modifiedTicket = await this.ticketService.ModifyTicketAsync(ticket);
+            return Ok(modifiedTicket);
+        }
 
-        //    return token;
-        //}
+        [HttpDelete("{postId}")]
+        public async ValueTask<ActionResult<Ticket>> DeleteTicketByIdAsync(Guid ticketId)
+        {
+            Ticket deletedTicket = await this.ticketService.RemovePostByIdAsync(ticketId);
+            return Ok(deletedTicket);
+        }
     }
 }
