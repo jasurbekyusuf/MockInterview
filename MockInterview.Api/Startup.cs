@@ -3,14 +3,22 @@
 // Free to use to bring order in your workplace
 //==================================================
 
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MockInterview.Api.Brokers.Loggings;
 using MockInterview.Api.Brokers.Storages;
+using MockInterview.Api.Models.Users;
+using MockInterview.Api.Services.Users;
+using System.Text;
 
 namespace MockInterview.Api
 {
@@ -31,7 +39,34 @@ namespace MockInterview.Api
                     info: new OpenApiInfo { Title = "MockInterview.Api", Version = "v1" });
             });
             services.AddDbContext<StorageBroker>();
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                          .AddEntityFrameworkStores<StorageBroker>()
+                          .AddDefaultTokenProviders();
+            services.TryAddSingleton<ISystemClock, SystemClock>();
+            //services.TryAddSingleton<IUserService, UserService>();
             RegisterBrokers(services);
+            // Adding Authentication
+           services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+
+            // Adding Jwt Bearer
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidAudience = Configuration["JWT:ValidAudience"],
+                    ValidIssuer = Configuration["JWT:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+                };
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -47,6 +82,8 @@ namespace MockInterview.Api
 
             app.UseHttpsRedirection();
             app.UseRouting();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -56,6 +93,7 @@ namespace MockInterview.Api
         private static void RegisterBrokers(IServiceCollection services)
         {
             services.AddTransient<ILoggingBroker, LoggingBroker>();
+            services.AddTransient<IUserService, UserService>();
         }
     }
 }

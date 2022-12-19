@@ -13,7 +13,6 @@ namespace MockInterview.Api.Brokers.Storages
 {
     public partial class StorageBroker
     {
-        DbSet<User> Users { get; set; }
 
         public async ValueTask<User> InsertUserAsync(User user) =>
             await InsertAsync(user);

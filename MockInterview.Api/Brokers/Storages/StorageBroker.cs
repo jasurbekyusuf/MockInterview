@@ -4,14 +4,18 @@
 //==================================================
 
 using EFxceptions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using MockInterview.Api.Models.Users;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace MockInterview.Api.Brokers.Storages
 {
-    public partial class StorageBroker : EFxceptionsContext
+    public partial class StorageBroker : IdentityDbContext<IdentityUser>
     {
         private readonly IConfiguration configuration;
 
@@ -66,8 +70,11 @@ namespace MockInterview.Api.Brokers.Storages
         {
             string connectionString = this.configuration.GetConnectionString(name: "DefaultConnection");
             optionsBuilder.UseSqlServer(connectionString);
-        }   
-
+        }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
         public override void Dispose() { }
     }
 }
