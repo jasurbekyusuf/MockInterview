@@ -24,22 +24,22 @@ namespace MockInterview.Api.Controllers
     [Route("api/[controller]")]
     public class TicketEnrollmentController : RESTFulController
     {
-        private readonly IConfiguration configuration;
         private readonly ITicketEnrollmentService ticketEnrollmentService;
         private readonly IUserService userService;
         private readonly ITicketService ticketService;
+        private readonly UserManager<IdentityUser> userManager;
 
         public TicketEnrollmentController(
             ITicketEnrollmentService ticketEnrollmentService,
             IUserService userService,
-            ITicketService ticketService)
+            ITicketService ticketService,
+            UserManager<IdentityUser> userManager)
         {
             this.ticketEnrollmentService = ticketEnrollmentService;
             this.userService = userService;
             this.ticketService = ticketService;
+            this.userManager = userManager;
         }
-
-        private readonly UserManager<IdentityUser> userManager;
 
         [HttpPost]
         [Route("AddTicketEnrollment")]
