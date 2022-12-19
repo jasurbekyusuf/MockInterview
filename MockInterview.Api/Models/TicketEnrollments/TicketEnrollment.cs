@@ -9,7 +9,7 @@ namespace MockInterview.Api.Models.TicketEnrollments
 
         public Ticket Ticket { get; set; }
 
-        public Guid CandidateId { get; set; }
+        public string CandidateId { get; set; }
 
         public DateTime EnrollmentTime { get; set; }
     }

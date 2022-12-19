@@ -16,6 +16,7 @@ using MockInterview.Api.Services.Foundations.Tickets;
 using MockInterview.Api.Services.Users;
 using MockInterview.Api.Services.Foundations.TicketEnrollments;
 using Microsoft.AspNetCore.Authentication;
+using System.Linq;
 
 namespace MockInterview.Api.Controllers
 {
@@ -26,32 +27,40 @@ namespace MockInterview.Api.Controllers
         private readonly IConfiguration configuration;
         private readonly ITicketEnrollmentService ticketEnrollmentService;
         private readonly IUserService userService;
+        private readonly ITicketService ticketService;
 
         public TicketEnrollmentController(
             ITicketEnrollmentService ticketEnrollmentService,
-            IUserService userService)
+            IUserService userService,
+            ITicketService ticketService)
         {
             this.ticketEnrollmentService = ticketEnrollmentService;
             this.userService = userService;
+            this.ticketService = ticketService;
         }
 
         private readonly UserManager<IdentityUser> userManager;
-        private readonly RoleManager<IdentityRole> roleManager;
 
         [HttpPost]
         [Route("AddTicketEnrollment")]
-        public async ValueTask<ActionResult<TicketEnrollment>> PostTicketEnrollmentAsync([FromBody]TicketEnrollment ticketEnrollment, string token)
+        public async ValueTask<ActionResult<TicketEnrollment>> PostTicketEnrollmentAsync([FromBody]RegisterTicketEnrollment registerTicketEnrollment)
         {
             try
             {
-
-                var user = HttpContext.User;
-
-                var validation = this.userService.ValidateToken(token).Result.Status;
-                if (validation == "Valid")
+                var validation = this.userService.ValidateToken(registerTicketEnrollment.Token).Result;
+                var user = userManager.FindByNameAsync(validation.Message).Result;
+                if (validation.Status == "Valid")
                 {
                     //await HttpContext.SignInAsync(validation, this.userService.GetClaim(token));
                     
+                    var ticket = await this.ticketService.RetrieveTicketByIdAsync(registerTicketEnrollment.TicketId);
+                    var ticketEnrollment = new TicketEnrollment
+                    {
+                        Id = new Guid(),
+                        Ticket = ticket,
+                        EnrollmentTime = DateTime.UtcNow,
+                        CandidateId = user.Id,
+                    };
                     var res = await this.ticketEnrollmentService.AddTicketEnrollmentAsync(ticketEnrollment);
                     return Ok(res);
                 }
@@ -84,6 +93,7 @@ namespace MockInterview.Api.Controllers
         }
 
         [HttpGet]
+        [Route("GetTicketEnrollmentById")]
         public async ValueTask<ActionResult<TicketEnrollment>> GetTicketByIdAsync(Guid id)
         {
             try
@@ -108,6 +118,14 @@ namespace MockInterview.Api.Controllers
             {
                 return InternalServerError(ticketServiceException.InnerException);
             }
+        }
+
+        [HttpGet]
+        [Route("GetAllTicketEnrollments")]
+        public ActionResult<IQueryable<TicketEnrollment>> GetAllTicketEnrollments()
+        {
+            IQueryable<TicketEnrollment> retrievedTicketEnrollments = this.ticketEnrollmentService.RetrieveAllTicketEnrollments();
+            return Ok(retrievedTicketEnrollments);
         }
     }
 }
